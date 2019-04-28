@@ -5,9 +5,9 @@ import os
 server_path = "python_server/"
 
 def read_file(browser,req):
-	print(req)
 	req_file = re.match(".+/.+H",req).group()[:-2].split("/")[1]
 	filename =server_path + re.match(".+/.+H",req).group()[:-2].split("/")[1]
+	print(f"[+] - Client Requested File : {filename}")
 	try:
 		file = open(filename,"r",encoding="utf8")
 		if os.path.isdir(filename) != True:
@@ -15,11 +15,13 @@ def read_file(browser,req):
 			if content_type != 1:
 				file_contents = file.read()
 				write_response(browser,len(file_contents),content_type,file_contents)
+				print("[+] - File Founded .")
 		else:
 			print("else")
 
 	except FileNotFoundError:
 		write_error(browser,"404 Not Found")
+		print("[+] - File Not Found .")
 
 def file_type(filename):
 	ext = ("txt","csv","json","js","css","html")
@@ -54,10 +56,15 @@ def write_error(browser,type):
 	browser.send(response.encode("utf-8"))
 
 
+port = input("Server Port ? : ")
 
 server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-server.bind(("",8089))
+print("[+] - Server Starting...")
+server.bind(("",int(port)))
+print(f"[+] - Listening on port {port}...")
 server.listen()
+print("[+] - Server Started Successfully...")
+print(f"[+] - Server files directory : {server_path}")
 while True:
 	browser,addr = server.accept()
 	headers = browser.recv(1024).decode("utf-8").split("\r\n")
